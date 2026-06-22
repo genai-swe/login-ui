@@ -1,4 +1,4 @@
-name: HTML Validation, Unit and Integration Tests
+name: HTML Validation
 
 on:
   push:
@@ -12,12 +12,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: 'latest'
       
       - name: Install HTML Validator
         run: npm install html-validate

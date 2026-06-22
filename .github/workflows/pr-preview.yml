@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout PR code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build preview URL
         id: preview
@@ -35,7 +35,7 @@ jobs:
           echo "folder=pr-${PR}" >> "$GITHUB_OUTPUT"
 
       - name: Publish PR preview to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
@@ -57,7 +57,7 @@ jobs:
 
     steps:
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
 

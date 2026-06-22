@@ -1,4 +1,4 @@
-name: HTML Validation, Unit and Integration Tests
+name: HTML Validation
 
 on:
   push:

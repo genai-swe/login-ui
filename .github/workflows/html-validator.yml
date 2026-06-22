@@ -1,0 +1,27 @@
+name: HTML Validation, Unit and Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install HTML Validator
+        run: npm install html-validate
+      
+      - name: Validate HTML files
+        run: npx html-validate --preset recommended --rule element-required-attributes:off www
+

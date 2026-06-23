@@ -20,6 +20,34 @@
     <h2>Login</h2>
 
     <!-- Hier Elemente Einfügen! -->
+    <div class="mb-3">
+      <label for="email" class="form-label">E-Mail</label>
+      <input
+        type="email"
+        id="email"
+        class="form-control"
+        v-model="email"
+        placeholder="E-Mail eingeben"
+        :disabled="loading"
+        @keyup.enter="handleLogin"
+      >
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Passwort</label>
+      <input
+        type="password"
+        id="password"
+        class="form-control"
+        v-model="password"
+        placeholder="Passwort eingeben"
+        :disabled="loading"
+        @keyup.enter="handleLogin"
+      >
+    </div>
+    <button class="btn btn-primary w-100 mb-3" @click="handleLogin" :disabled="loading">
+      <span v-if="loading">Laden&#8230;</span>
+      <span v-else>Anmelden</span>
+    </button>
     <p v-if="message" :class="isSuccess ? 'success' : 'error'">
       {{ message }}
     </p>
@@ -76,13 +104,18 @@
         return {
           email: "",
           password: "",
-          message: "implement me!",
+          message: "",
           loading: false,
           isSuccess: false,
         };
       },
       methods: {
         async handleLogin() {
+          if (!this.email || !this.password) {
+            this.isSuccess = false;
+            this.message = "Bitte E-Mail und Passwort eingeben.";
+            return;
+          }
           this.loading = true;
           this.message = "";
           try {

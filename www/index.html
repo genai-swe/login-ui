@@ -6,12 +6,8 @@
   <script src="inc/vue.global.js"></script>
   <link href="inc/bootstrap.min.css" rel="stylesheet">
   <style>
-    .success {
-      color: green;
-    }
-    .error {
-      color: red;
-    }
+    .success { color: green; }
+    .error { color: red; }
   </style>
 </head>
 <body>
@@ -19,8 +15,46 @@
   <div id="app" class="container col-sm-6 mt-4">
     <h2>Login</h2>
 
-    <!-- Hier Elemente Einfügen! -->
-    <p v-if="message" :class="isSuccess ? 'success' : 'error'">
+    <form @submit.prevent="handleLogin" novalidate class="mt-3">
+      <div class="mb-3">
+        <label for="email" class="form-label">E-Mail</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          v-model.trim="email"
+          :disabled="loading"
+          autocomplete="username"
+          placeholder="name@example.com"
+        >
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Passwort</label>
+        <input
+          id="password"
+          type="password"
+          class="form-control"
+          v-model="password"
+          :disabled="loading"
+          autocomplete="current-password"
+          placeholder="••••"
+        >
+      </div>
+
+      <button class="btn btn-primary w-100"
+              type="submit"
+              :disabled="loading">
+        <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        {{ loading ? "Login..." : "Login" }}
+      </button>
+
+      <button class="btn btn-outline-secondary w-100 mt-2" type="button" :disabled="loading" @click="fillDemo">
+        Demo-Fill
+      </button>
+    </form>
+
+    <p v-if="message" :class="isSuccess ? 'success' : 'error'" class="mt-3 mb-0">
       {{ message }}
     </p>
   </div>
@@ -44,29 +78,6 @@
     }
 
     // =========================
-    // AUFGABE
-    // =========================
-    /*
-      Baue eine Login-UI, mit:
-
-      1. Elemente:
-         - email-Feld
-         - Passwort-Feld
-         - Login-Button
-
-      2. Ruft loginApi(email, password) bei Klick auf
-
-      3. Zeigt:
-         - Erfolgsmeldung (z.B. "Willkommen Test User")
-         - oder Fehlermeldung
-
-      4. Bonus:
-         - Schaltfläche beim Laden deaktivieren
-         - grundlegende Validierung (leere Felder)
-         - bessere Benutzerfreundlichkeit / Styling
-    */
-
-    // =========================
     // Vue App
     // =========================
     const { createApp } = Vue;
@@ -76,29 +87,47 @@
         return {
           email: "",
           password: "",
-          message: "implement me!",
+          message: "",
           loading: false,
           isSuccess: false,
         };
       },
       methods: {
+        fillDemo() {
+          this.email = "test@test.com";
+          this.password = "1234";
+          this.message = "";
+          this.isSuccess = false;
+        },
         async handleLogin() {
+          // Basic validation (leere Felder)
+          if (!this.email) {
+            this.isSuccess = false;
+            this.message = "Bitte E-Mail eingeben.";
+            return;
+          }
+          if (!this.password) {
+            this.isSuccess = false;
+            this.message = "Bitte Passwort eingeben.";
+            return;
+          }
+
           this.loading = true;
           this.message = "";
+
           try {
             const result = await loginApi(this.email, this.password);
             this.isSuccess = true;
             this.message = `Willkommen ${result.name}`;
           } catch (error) {
             this.isSuccess = false;
-            this.message = error.message;
+            this.message = error?.message || "Login fehlgeschlagen";
           } finally {
             this.loading = false;
           }
         },
       },
     }).mount("#app");
-
   </script>
 
 </body>

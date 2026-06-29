@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Aufgabe</title>
+  <script src="inc/vue.global.js"></script>
+  <link href="inc/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <div id="app" class="container col-sm-6 mt-4">
+    <h2 class="mb-3">Login</h2>
+
+    <!-- E-Mail -->
+    <div class="mb-3">
+      <label for="email" class="form-label">E-Mail</label>
+      <input
+        id="email"
+        type="email"
+        class="form-control"
+        :class="{ 'is-invalid': emailError }"
+        v-model.trim="email"
+        @blur="touched.email = true"
+        placeholder="name@beispiel.de"
+        autocomplete="username"
+        :disabled="loading"
+      >
+      <div class="invalid-feedback">{{ emailError }}</div>
+    </div>
+
+    <!-- Passwort (mit Anzeigen/Verbergen-Umschalter) -->
+    <div class="mb-3">
+      <label for="password" class="form-label">Passwort</label>
+      <div class="input-group has-validation">
+        <input
+          id="password"
+          :type="showPassword ? 'text' : 'password'"
+          class="form-control"
+          :class="{ 'is-invalid': passwordError }"
+          v-model="password"
+          @blur="touched.password = true"
+          placeholder="Passwort"
+          autocomplete="current-password"
+          :disabled="loading"
+        >
+        <button
+          class="btn btn-outline-secondary"
+          type="button"
+          @click="showPassword = !showPassword"
+          :disabled="loading"
+        >
+          {{ showPassword ? 'Verbergen' : 'Anzeigen' }}
+        </button>
+        <div class="invalid-feedback">{{ passwordError }}</div>
+      </div>
+    </div>
+
+    <!-- Login-Button mit Lade-Spinner -->
+    <button
+      class="btn btn-primary w-100"
+      type="button"
+      @click="handleLogin"
+      :disabled="!formValid || loading"
+    >
+      <span
+        v-if="loading"
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      {{ loading ? 'Anmeldung läuft…' : 'Login' }}
+    </button>
+
+    <!-- Erfolgs- / Fehlermeldung -->
+    <p
+      v-if="message"
+      class="mt-3 mb-0"
+      :class="isSuccess ? 'alert alert-success' : 'alert alert-danger'"
+      role="alert"
+    >
+      {{ message }}
+    </p>
+  </div>
+
+  <script>
+    // =========================
+    // Fake API (NICHT ÄNDERN)
+    // =========================
+    async function loginApi(email, password) {
+      console.log("API called with:", email, password);
+
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (email === "test@test.com" && password === "1234") {
+            resolve({ success: true, name: "Test User" });
+          } else {
+            reject({ success: false, message: "Invalid credentials" });
+          }
+        }, 1000);
+      });
+    }
+
+    // =========================
+    // AUFGABE
+    // =========================
+    /*
+      Baue eine Login-UI, mit:
+
+      1. Elemente:
+         - email-Feld
+         - Passwort-Feld
+         - Login-Button
+
+      2. Ruft loginApi(email, password) bei Klick auf
+
+      3. Zeigt:
+         - Erfolgsmeldung (z.B. "Willkommen Test User")
+         - oder Fehlermeldung
+
+      4. Bonus:
+         - Schaltfläche beim Laden deaktivieren
+         - grundlegende Validierung (leere Felder)
+         - bessere Benutzerfreundlichkeit / Styling
+    */
+
+    // =========================
+    // Vue App
+    // =========================
+    const { createApp } = Vue;
+
+    // Einfache E-Mail-Format-Prüfung (Zeichen @ Zeichen . Zeichen)
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    createApp({
+      data() {
+        return {
+          email: "",
+          password: "",
+          message: "",
+          loading: false,
+          isSuccess: false,
+          showPassword: false,
+          // Erst nach Verlassen eines Felds (blur) Fehler anzeigen,
+          // damit nicht schon beim Laden alles rot ist.
+          touched: { email: false, password: false },
+        };
+      },
+      computed: {
+        emailFormatValid() {
+          return EMAIL_REGEX.test(this.email);
+        },
+        emailError() {
+          if (!this.touched.email) return "";
+          if (!this.email) return "Bitte E-Mail-Adresse eingeben.";
+          if (!this.emailFormatValid) return "Bitte eine gültige E-Mail-Adresse eingeben.";
+          return "";
+        },
+        passwordError() {
+          if (!this.touched.password) return "";
+          if (!this.password) return "Bitte Passwort eingeben.";
+          return "";
+        },
+        formValid() {
+          return this.emailFormatValid && this.password.length > 0;
+        },
+      },
+      methods: {
+        async handleLogin() {
+          // Validierung beim Klick erzwingen (zeigt Hinweise an).
+          this.touched.email = true;
+          this.touched.password = true;
+          if (!this.formValid) return;
+
+          this.loading = true;
+          this.message = "";
+          try {
+            const result = await loginApi(this.email, this.password);
+            this.isSuccess = true;
+            this.message = `Willkommen ${result.name}`;
+          } catch (error) {
+            this.isSuccess = false;
+            this.message = "E-Mail-Adresse oder Passwort ist falsch.";
+          } finally {
+            this.loading = false;
+          }
+        },
+      },
+    }).mount("#app");
+
+  </script>
+
+</body>
+</html>

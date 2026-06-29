@@ -6,6 +6,15 @@
   <script src="inc/vue.global.js"></script>
   <link href="inc/bootstrap.min.css" rel="stylesheet">
   <style>
+    body {
+      background: #f8f9fa;
+    }
+    .login-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+    }
     .success {
       color: green;
     }
@@ -17,12 +26,47 @@
 <body>
 
   <div id="app" class="container col-sm-6 mt-4">
-    <h2>Login</h2>
+    <div class="login-card">
+      <h2 class="mb-4">Login</h2>
 
-    <!-- Hier Elemente Einfügen! -->
-    <p v-if="message" :class="isSuccess ? 'success' : 'error'">
-      {{ message }}
-    </p>
+      <form @submit.prevent="handleLogin">
+        <div class="mb-3">
+          <label for="email" class="form-label">E-Mail</label>
+          <input
+            id="email"
+            v-model.trim="email"
+            type="email"
+            class="form-control"
+            placeholder="test@test.com"
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">Passwort</label>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            class="form-control"
+            placeholder="1234"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          :disabled="loading"
+        >
+          {{ loading ? "Anmeldung läuft..." : "Einloggen" }}
+        </button>
+      </form>
+
+      <p v-if="message" class="mt-3 mb-0" :class="isSuccess ? 'success' : 'error'">
+        {{ message }}
+      </p>
+    </div>
   </div>
 
   <script>
@@ -76,13 +120,19 @@
         return {
           email: "",
           password: "",
-          message: "implement me!",
+          message: "",
           loading: false,
           isSuccess: false,
         };
       },
       methods: {
         async handleLogin() {
+          if (!this.email || !this.password) {
+            this.isSuccess = false;
+            this.message = "Bitte E-Mail und Passwort eingeben.";
+            return;
+          }
+
           this.loading = true;
           this.message = "";
           try {
